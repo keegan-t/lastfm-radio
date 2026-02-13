@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link rel="icon" href="logo.png">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/blueimp-md5/js/md5.min.js"></script>
+    <script src="onload.js"></script>
+    <title>Last.FM Random Music Generator</title>
+
+    <style>
+        body {
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: black;
+            color: darkred;
+        }
+
+        h1 {
+            padding: 20px;
+        }
+
+        header > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px;
+        }
+
+        h2 {
+            margin: 20px;
+        }
+
+        #form-container {
+            margin-top: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #options {
+            display: flex;
+            flex-direction: column;
+            width: 200px;
+        }
+
+        input, label, select {
+            text-align: left;
+            width: 200px;
+        }
+
+        input, select {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 4px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            transition: 0.1s ease;
+        }
+
+        input:hover, input:focus,
+        select:hover, select:focus {
+            background-color: #888;
+            outline: none;
+        }
+
+        #play-button {
+            margin-top: 10px;
+        }
+
+        .btn-danger {
+            transition: 0.1s ease;
+            background-color: darkred;
+            border: darkred;
+        }
+
+        #content {
+            display: none;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        #player-wrapper {
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        #player-wrapper iframe {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        #controls {
+            display: flex;
+            align-items: center;
+        }
+
+        #seeking {
+            display: none;
+        }
+
+        #editing {
+            flex: 1;
+            text-align: left;
+        }
+
+        #looping {
+            flex: 1;
+            text-align: right;
+        }
+
+        .btn:focus, .btn:active {
+            box-shadow: none !important;
+        }
+
+        .btn-secondary {
+            margin: 0 7.5px;
+            width: 100px;
+        }
+
+        #scrobble-button {
+            width: 50px;
+        }
+
+        #edit-video-button, #loop-button {
+            width: 50px;
+            background-color: #444;
+            border-color: #444;
+        }
+
+        #edit-video-button {
+            margin-left: 0;
+        }
+
+        #loop-button {
+            margin-right: 0;
+        }
+
+        #setup-notice {
+            margin-top: 20px;
+            color: #ff6666;
+        }
+
+        #edit-video-row {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        #edit-video-input {
+            width: 280px;
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        #edit-video-cancel {
+            margin: 0;
+        }
+
+        .modal-content {
+            background: #222;
+            color: white;
+        }
+
+        .modal-header, .modal-footer {
+            border-color: #444;
+        }
+
+        .modal-body input {
+            background-color: #555;
+            color: white;
+            border: none;
+            width: 100%;
+        }
+
+        .modal-body label {
+            width: 100%;
+            text-align: left;
+            margin-top: 8px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <header>
+        <h1>Last.FM Random Music Generator</h1>
+        <div>
+            <button type="button" class="btn btn-danger" id="auth-button">Authenticate</button>
+            <button type="button" class="btn btn-secondary" id="settings-button" data-bs-toggle="modal" data-bs-target="#settings-modal">Settings</button>
+        </div>
+    </header>
+
+    <div class="modal fade" id="settings-modal" tabindex="-1" aria-labelledby="settings-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settings-modal-label">API Settings</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="text-align:left;">
+                    <p>You need a <a href="https://www.last.fm/api/account/create" target="_blank" style="color:#bb2222;">Last.FM API account</a> and a <a href="https://developers.google.com/youtube/v3/getting-started" target="_blank" style="color:#bb2222;">YouTube Data API v3 key</a>.</p>
+                    <label for="setting-lastfm-key">Last.FM API Key</label>
+                    <input type="text" id="setting-lastfm-key" placeholder="e.g. a1b2c3d4e5f6...">
+                    <label for="setting-lastfm-secret">Last.FM Secret</label>
+                    <input type="text" id="setting-lastfm-secret" placeholder="e.g. a1b2c3d4e5f6...">
+                    <label for="setting-youtube-key">YouTube API Key</label>
+                    <input type="text" id="setting-youtube-key" placeholder="e.g. AIzaSy...">
+                    <hr style="border-color:#444; margin-top:16px;">
+                    <p style="margin-bottom:8px;">Song cache</p>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" class="btn btn-secondary btn-sm" id="export-cache-button">Export</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="import-cache-button">Import</button>
+                        <input type="file" id="import-cache-input" accept=".json" style="display:none;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="save-settings-button">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="setup-notice" style="display:none;">
+        &#9888; API keys not configured. Click <strong>Settings</strong> to get started.
+    </div>
+
+    <div id="form-container">
+        <form id="options">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Last.FM username">
+            <label for="min-plays">Minimum Plays</label>
+            <input type="number" id="min-plays" name="min-plays" min="1" value="10">
+            <label for="min-plays">Maximum Plays</label>
+            <input type="number" id="max-plays" name="max-plays" min="1" value="10000">
+            <label for="period">Time Period</label>
+            <select id="period">
+                <option>Last 7 Days</option>
+                <option>Last Month</option>
+                <option>Last 3 Months</option>
+                <option>Last 6 Months</option>
+                <option>Last Year</option>
+                <option selected>Overall</option>
+            </select>
+            <label for="order">Playlist Order</label>
+            <select id="order">
+                <option selected>Random</option>
+                <option>In Order</option>
+            </select>
+            <button type="button" class="btn btn-danger" id="play-button">Play Library</button>
+        </form>
+    </div>
+
+    <div id="content">
+        <div id="title-row">
+            <h2 id="song-title"></h2>
+        </div>
+        <div id="edit-video-row" style="display:none;">
+            <input type="text" id="edit-video-input" placeholder="YouTube video ID or URL">
+            <button type="button" class="btn btn-danger btn-sm" id="edit-video-confirm">Apply</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="edit-video-cancel">Cancel</button>
+        </div>
+        <div id="player-wrapper">
+            <div id="player"></div>
+        </div>
+        <div id="controls">
+            <div id="editing">
+                <button type="button" class="btn btn-secondary" id="edit-video-button" title="Fix YouTube video">&#9998;</button>
+            </div>
+            <div id="seeking">
+                <button type="button" class="btn btn-secondary" id="prev-button" title="Go to previous track">&laquo; Previous</button>
+                <button type="button" class="btn btn-secondary" id="scrobble-button"  title="Scrobble and go to next track">&#9835;</button>
+                <button type="button" class="btn btn-secondary" id="skip-button"  title="Go to next track">Next &raquo;</button>
+            </div>
+            <div id="looping">
+                <button type="button" class="btn btn-secondary" id="loop-button"  title="Loop the current track">&#10227;</button>
+            </div>
+        </div>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
