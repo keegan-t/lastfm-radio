@@ -42,6 +42,6 @@ After saving, click **Authenticate** to link your Last.FM account (required for 
 4. Choose Random or In Order
 5. Click **Play Library**
 
-The app fetches your top tracks, shuffles them (if random), and starts playing. Tracks are scrobbled automatically when a song finishes, or manually with the [♪] button.
-YouTube video matching always takes the first search result. If a video is incorrect, you can edit it with the [✏] button.
-You can import or export a list of cached songs at any time.
+- The app fetches your top tracks, shuffles them (if random), and starts playing. Tracks are scrobbled automatically when a song finishes, or manually with the [♪] button.
+- YouTube video matching always takes the first search result. If a video is incorrect, you can edit it with the [✏] button.
+- You can import or export a list of cached songs at any time.
