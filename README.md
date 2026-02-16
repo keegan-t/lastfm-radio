@@ -1,8 +1,8 @@
-# <img src="logo.png" height="40" align="center"> Last.FM Random Music Generator
+# <img src="logo.png" height="40" align="center"> Last.FM Radio
 
 A web app that builds a playlist from your Last.FM listening history and plays it through YouTube. Supports scrobbling back to Last.FM as you listen.
 
-**[Try it on GitHub Pages →](https://keegan-t.github.io/lastfm-randomizer)**
+**[Try it on GitHub Pages →](https://keegan-t.github.io/lastfm-radio)**
 
 ## Features
 
