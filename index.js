@@ -24,6 +24,7 @@ let player;
 // Variables
 let songList = [];
 let cachedSongs = {};
+let lovedTracks = new Set();
 let currentSongIndex = 0;
 let currentVideoID;
 let loopToggled = false;
@@ -228,8 +229,11 @@ async function getNextSong() {
     }
     let currentTrack = songList[currentSongIndex];
     let track = currentTrack["artist"] + " - " + currentTrack["song"];
-    songTitle.innerHTML = `#${parseInt(currentTrack["rank"]).toLocaleString()} | ${track} (${parseInt(currentTrack["plays"]).toLocaleString()} plays)`;
-    document.title = `${track} (${parseInt(currentTrack["plays"]).toLocaleString()} plays)`;
+    let loved = lovedTracks.has(track.toLowerCase());
+    let heartPrefix = loved ? `<span style="color:crimson">♥</span> ` : "";
+    songTitle.innerHTML = `#${parseInt(currentTrack["rank"]).toLocaleString()} | ${heartPrefix}${track} (${parseInt(currentTrack["plays"]).toLocaleString()} plays)`;
+    document.title = `${loved ? "♥ " : ""}${track} (${parseInt(currentTrack["plays"]).toLocaleString()} plays)`;
+    document.getElementById("player-wrapper").classList.toggle("loved-glow", loved);
     currentVideoID = await searchSong(track);
     updateNowPlaying();
     currentSongIndex++;
@@ -309,6 +313,28 @@ async function getCachedSongs() {
     return Object.assign({}, bundled, local);
 }
 
+/**
+ * Fetches all tracks the user has loved and populates the lovedTracks Set
+ */
+async function fetchLovedTracks(user) {
+    lovedTracks.clear();
+    let page = 1;
+    while (true) {
+        let url = "https://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user=" + user + "&api_key=" + LASTFM_API_KEY + "&format=json&limit=1000&page=" + page;
+        let response = await fetch(url);
+        let data = await response.json();
+        if (data["error"] || !data["lovedtracks"]) break;
+        let tracks = data["lovedtracks"]["track"];
+        if (!tracks || tracks.length === 0) break;
+        for (let t of tracks) {
+            lovedTracks.add((t["artist"]["name"] + " - " + t["name"]).toLowerCase());
+        }
+        let totalPages = parseInt(data["lovedtracks"]["@attr"]["totalPages"]);
+        if (page >= totalPages) break;
+        page++;
+    }
+}
+
 // Event listeners
 
 /**
@@ -338,7 +364,7 @@ playButton.addEventListener("click", async function () {
     }
 
     try {
-        cachedSongs = await getCachedSongs();
+        [cachedSongs] = await Promise.all([getCachedSongs(), fetchLovedTracks(user)]);
         await getSongList(user, minPlays, maxPlays, timePeriod, songOrder);
         await getNextSong();
     } catch (e) {

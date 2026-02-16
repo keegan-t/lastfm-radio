@@ -87,6 +87,10 @@ select:hover, select:focus {
     transition: box-shadow 0.6s ease;
 }
 
+#player-wrapper.loved-glow {
+    box-shadow: 0 0 18px 6px darkred;
+}
+
 #player-wrapper iframe {
     position: absolute;
     width: 100%;
