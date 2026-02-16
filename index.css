@@ -192,3 +192,23 @@ select:hover, select:focus {
     text-align: left;
     margin-top: 8px;
 }
+
+#home-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+}
+
+#home-button:hover {
+    opacity: 1;
+}
