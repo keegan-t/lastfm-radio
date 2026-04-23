@@ -2,7 +2,7 @@
 
 A web app that builds a playlist from your Last.FM listening history and plays it through YouTube. Supports scrobbling back to Last.FM as you listen.
 
-**[Try it on GitHub Pages →](https://keegan-t.github.io/lastfm-radio)**
+**[Try it on keegant.dev →](https://radio.keegant.dev)**
 
 ## Features
 
