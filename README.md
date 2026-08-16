@@ -1,4 +1,4 @@
-# <img src="logo.png" height="40" align="center"> Last.FM Radio
+# <img src="logo.png" height="40" align="top" alt=""> Last.FM Radio
 
 A web app that builds a playlist from your Last.FM listening history and plays it through YouTube. Supports scrobbling back to Last.FM as you listen.
 
